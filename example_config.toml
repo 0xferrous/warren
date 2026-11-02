@@ -1,0 +1,33 @@
+# Copy to $XDG_CONFIG_HOME/warren/config.toml (default ~/.config/warren/config.toml).
+
+[global]
+# Guest image. A local NixOS image can be loaded with
+# `warren spawn --guest-image "$(nix build .#guest-image --print-out-paths)"`.
+image = "warren-nixos:latest"
+memory = 4096
+cpus = 2
+root_disk_mib = 32768
+guest_user = "agent"
+guest_home = "/home/agent"
+shell = "/bin/sh"
+default_spaces = ["base"]
+
+[global.env]
+# EDITOR = "vim"
+
+[spaces.base]
+extends = []
+rw_mounts = [
+  # "~/dev/project:~/workspace/project",
+]
+ro_mounts = [
+  # "~/.config/git:~/.config/git",
+]
+files = [
+  # "~/.gitconfig",
+]
+# env = { GIT_CONFIG_GLOBAL = "~/.config/git/config" }
+
+[spaces.full]
+extends = ["base"]
+# rw_mounts = ["~/dev/other:~/workspace/other"]
