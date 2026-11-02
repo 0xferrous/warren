@@ -18,6 +18,7 @@ Done and exercised on Linux x86_64 + KVM:
 - `attach` implemented; `run`, `cp`, `logs`, `pause`, `resume`,
   `inspect`, `ls`, `stop`, `start`, `rm` exercised
 - tests, `go vet`, `nix build .#warren`, `nix flake check`
+- `demo/` target (`.#demo`, `.#demo-aarch64-linux`) and `demo/run.sh`
 
 Still to do:
 

@@ -21,6 +21,13 @@
           ];
         };
 
+      mkDemo =
+        system:
+        nixpkgs.lib.nixosSystem {
+          inherit system;
+          modules = [ ./demo/configuration.nix ];
+        };
+
       mkImage =
         system:
         let
@@ -65,7 +72,13 @@
     {
       nixosModules.guest = import ./guest/module.nix;
 
-      nixosConfigurations = nixpkgs.lib.genAttrs systems (system: mkGuest system);
+      nixosConfigurations =
+        nixpkgs.lib.genAttrs systems (system: mkGuest system)
+        // {
+          # The usual local demo target. On aarch64 use demo-aarch64-linux.
+          demo = mkDemo "x86_64-linux";
+          demo-aarch64-linux = mkDemo "aarch64-linux";
+        };
 
       packages = nixpkgs.lib.genAttrs systems (
         system:

@@ -103,6 +103,26 @@ Subsequent spawns reuse the activated configuration. Use `--eval` to run
 warren spawn work --eval
 ```
 
+## Demo VM
+
+A ready-to-play NixOS target lives in [`demo/`](./demo/README.md):
+
+```sh
+./demo/run.sh
+```
+
+It builds warren and the guest image, spawns a VM named `demo`, activates
+`.#demo`, and attaches. It includes the usual shell tools plus Python, and the `agent` user has
+passwordless sudo. Use `nix shell nixpkgs#go` (or Node/GCC) inside for heavier
+tooling.
+
+```sh
+./result-warren/bin/warren run demo -- hello
+./result-warren/bin/warren mount demo "$PWD:/home/agent/warren"
+./result-warren/bin/warren spawn demo --eval   # after editing demo/configuration.nix
+./result-warren/bin/warren rm demo
+```
+
 ## Commands
 
 ```
