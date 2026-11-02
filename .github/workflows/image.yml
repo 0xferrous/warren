@@ -1,0 +1,91 @@
+name: guest-image
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+    paths:
+      - "flake.nix"
+      - "flake.lock"
+      - "guest/**"
+      - "nix/**"
+      - ".github/workflows/image.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "flake.nix"
+      - "flake.lock"
+      - "guest/**"
+      - "nix/**"
+      - ".github/workflows/image.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: guest-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and push NixOS guest image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out
+        uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: cachix/install-nix-action@v31
+        with:
+          extra_nix_config: |
+            experimental-features = nix-command flakes
+
+      - name: Build guest image
+        run: |
+          nix build .#guest-image --out-link result --print-build-logs
+          ls -lhL result
+
+      - name: Load image
+        run: docker load --quiet --input result
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Tag and push
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          set -euo pipefail
+          image="$(echo "ghcr.io/${GITHUB_REPOSITORY_OWNER}/warren-nixos" | tr '[:upper:]' '[:lower:]')"
+          sha_tag="${image}:sha-${GITHUB_SHA::12}"
+
+          docker tag warren-nixos:latest "$sha_tag"
+          docker push "$sha_tag"
+
+          {
+            echo "### warren guest image"
+            echo ""
+            echo "- \`$sha_tag\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            docker tag warren-nixos:latest "$image:latest"
+            docker push "$image:latest"
+            echo "- \`$image:latest\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            tag="${GITHUB_REF#refs/tags/}"
+            docker tag warren-nixos:latest "$image:$tag"
+            docker push "$image:$tag"
+            echo "- \`$image:$tag\`" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Verify PR image
+        if: github.event_name == 'pull_request'
+        run: docker image inspect warren-nixos:latest >/dev/null

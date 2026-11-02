@@ -105,6 +105,29 @@ Subsequent spawns reuse the activated configuration. Use `--eval` to run
 warren spawn work --eval
 ```
 
+## Container image
+
+GitHub Actions builds `.#guest-image` and publishes it to GHCR on `main` and
+version tags:
+
+```text
+ghcr.io/0xferrous/warren-nixos:latest
+ghcr.io/0xferrous/warren-nixos:sha-<commit>
+ghcr.io/0xferrous/warren-nixos:<tag>
+```
+
+Pull it directly, or let warren pull it when creating a VM:
+
+```sh
+docker pull ghcr.io/0xferrous/warren-nixos:latest
+warren spawn work -f .#demo --image ghcr.io/0xferrous/warren-nixos:latest
+```
+
+The workflow lives at [`.github/workflows/image.yml`](./.github/workflows/image.yml).
+Pull requests build and validate the image without pushing. The workflow
+pushes with `GITHUB_TOKEN`; make the GHCR package public if you want warren to
+pull it without local credentials.
+
 ## Demo VM
 
 A ready-to-play NixOS target lives in [`demo/`](./demo/README.md):
@@ -114,9 +137,9 @@ A ready-to-play NixOS target lives in [`demo/`](./demo/README.md):
 ```
 
 It builds warren and the guest image, spawns a VM named `demo`, activates
-`.#demo`, and attaches. It includes the usual shell tools plus Python, and the `agent` user has
-passwordless sudo. Use `nix shell nixpkgs#go` (or Node/GCC) inside for heavier
-tooling.
+`.#demo`, and attaches. It includes the usual shell tools plus Python, and the
+`agent` user has passwordless sudo. Use `nix shell nixpkgs#go` (or Node/GCC)
+inside for heavier tooling.
 
 ```sh
 ./result-warren/bin/warren run demo -- hello
