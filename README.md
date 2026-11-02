@@ -17,7 +17,9 @@ Linux x86_64 with KVM:
   stop / start / rm (`attach` is implemented but needs an interactive TTY)
 - hot mounts through one pre-mounted share root
 
-See [`PLAN.md`](./PLAN.md) for the design and remaining work.
+See [`PLAN.md`](./PLAN.md) for the design and remaining work, and
+[`docs/lifecycle.md`](./docs/lifecycle.md) for VM and hot-mount lifecycle
+diagrams.
 
 ## How it works
 
