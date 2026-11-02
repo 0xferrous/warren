@@ -19,7 +19,8 @@ From the repository root:
 
 The script builds `warren`, builds the guest image, and spawns/attaches the
 demo VM. The first run also downloads the microsandbox runtime and image
-layers, so it takes a while.
+layers, and the first activation fetches/builds the demo system inside the
+guest, so it takes a while.
 
 Manual equivalent:
 
