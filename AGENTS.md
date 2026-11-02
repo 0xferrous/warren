@@ -1,0 +1,2 @@
+- use conventional commits style commit messages
+- we prefer docs that are to the point and concise, no fluff
